@@ -27,6 +27,7 @@ export default function Home() {
          
         </div>
       </div>
+
       <div className='flex-col h-screen w-full bg-bg1' id='prompt'>
         <div className='flex h-1/6 w-full bg-accent1'></div>
         <div className='flex-col h-5/6 w-full py-20 px-96 space-y-4'>
@@ -35,6 +36,42 @@ export default function Home() {
           <div className='flex w-full justify-center'>
             <button className='bg-pri_btn1 px-16 py-4 rounded border border-text1 text-xl font-medium transition ease-in-out duration:500 hover:bg-transparent hover:text-text1 hover:scale-110 hover:-translate-y-1'>Find!</button>
           </div>
+        </div>
+      </div>
+
+      <div className='flex h-fit w-full bg-green-100 px-32 py-32'>
+        <div className='flex-col w-full px-32 space-y-24'>
+          <div className='flex-col'>
+            <label className='text-text1 font-medium text-3xl'>Chocolate Bars</label>
+            <div className='overflow-x-scroll flex w-full space-x-12'>
+              <div className='flex-shrink-0 h-64 w-64 bg-gray-600'></div>
+              <div className='flex-shrink-0 h-64 w-64 bg-gray-600'></div>
+              <div className='flex-shrink-0 h-64 w-64 bg-gray-600'></div>
+              <div className='flex-shrink-0 h-64 w-64 bg-gray-600'></div>
+              <div className='flex-shrink-0 h-64 w-64 bg-gray-600'></div>
+              <div className='flex-shrink-0 h-64 w-64 bg-gray-600'></div>
+              <div className='flex-shrink-0 h-64 w-64 bg-gray-600'></div>
+              <div className='flex-shrink-0 h-64 w-64 bg-gray-600'></div>
+            </div>
+          </div>
+          <div className='flex-col'>
+            <label className='text-text1 font-medium text-3xl'>Chocolate Bars</label>
+            <div className='overflow-x-scroll flex w-full space-x-12'>
+              <div className='flex-shrink-0 h-64 w-64 bg-gray-600'></div>
+              <div className='flex-shrink-0 h-64 w-64 bg-gray-600'></div>
+              <div className='flex-shrink-0 h-64 w-64 bg-gray-600'></div>
+              <div className='flex-shrink-0 h-64 w-64 bg-gray-600'></div>
+              <div className='flex-shrink-0 h-64 w-64 bg-gray-600'></div>
+              <div className='flex-shrink-0 h-64 w-64 bg-gray-600'></div>
+              <div className='flex-shrink-0 h-64 w-64 bg-gray-600'></div>
+              <div className='flex-shrink-0 h-64 w-64 bg-gray-600'></div>
+            </div>
+          </div>
+
+          
+          
+
+          
         </div>
       </div>
     </div>
