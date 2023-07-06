@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import { Inter } from 'next/font/google'
-import { useEffect, useState } from 'react';
+import { SetStateAction, useEffect, useState } from 'react';
 import path from 'path';
 import { promises as fs } from 'fs';
 
@@ -8,6 +8,13 @@ const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
   const isBrowser = () => typeof window !== 'undefined';
+  const [value, setValue] = useState<String>();
+  const [list, setList] = useState();
+  const [display, setDisplay] = useState();
+
+  const textAreaHandler = (event: { target: { value: SetStateAction<String | undefined>; }; }) => {
+    setValue(event.target.value)
+  }
 
   function scrollToPrompt(){
     if (!isBrowser()) return;
@@ -15,21 +22,46 @@ export default function Home() {
   }
 
   async function generateAPIHandler(){
-    // useEffect(()=>{
-    //   fetch("http://127.0.0.1:5000/get_product")
-    //     .then((response) => response.json())
-    //     .then((data) => console.log(data))
-    //     .catch(error => console.log(error))
-    // }, []);
+    console.log(value)
+
     fetch("http://127.0.0.1:5000/get_product",
     {
       method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(
+        {
+        "prompt": value
+        }
+      )
     })
         .then((response) => response.json())
-        .then((data) => console.log(data))
+        .then((data) => {
+          setList(data)
+          console.log(list)
+        })
         .catch(error => console.log(error))
   }
 
+  function displayItem(items:{}){
+    return (
+      <div className='flex-shrink-0 h-64 w-64  bg-center bg-cover'></div>
+    )
+  }
+
+  function displayRows(items:{}){
+    return (
+      <div className='flex-col'>
+        <label className='text-text1 font-medium text-3xl'>{}</label>
+        <div className='overflow-x-scroll flex w-full space-x-12'>
+          <div className='flex-shrink-0 h-64 w-64 bg-gray-600'></div>
+          
+        </div>
+      </div>
+    )
+  }
 
 
   return (
@@ -53,9 +85,9 @@ export default function Home() {
         <div className='flex h-1/6 w-full bg-accent1'></div>
         <div className='flex-col h-5/6 w-full py-20 px-96 space-y-4'>
           <p className='flex w-full text-text1 text-2xl font-medium justify-center'>Enter your recipe:</p>
-          <textarea className='text-text1 w-full h-96 text-lg p-4' placeholder='Enter your recipe'>Testtest</textarea>
+          <textarea onChange={textAreaHandler} id='prompt' className='text-text1 w-full h-96 text-lg p-4' placeholder='Enter your recipe'>Testtest</textarea>
           <div className='flex w-full justify-center'>
-            <button onClick={generateAPIHandler} className='bg-pri_btn1 px-16 py-4 rounded border border-text1 text-xl font-medium transition ease-in-out duration:500 hover:bg-transparent hover:text-text1 hover:scale-110 hover:-translate-y-1'>Find!</button>
+            <button id='generate_btn' onClick={generateAPIHandler} className='bg-pri_btn1 px-16 py-4 rounded border border-text1 text-xl font-medium transition ease-in-out duration:500 hover:bg-transparent hover:text-text1 hover:scale-110 hover:-translate-y-1'>Find!</button>
           </div>
         </div>
       </div>
@@ -88,7 +120,6 @@ export default function Home() {
               <div className='flex-shrink-0 h-64 w-64 bg-gray-600'></div>
             </div>
           </div>
-
         </div>
       </div>
     </div>
