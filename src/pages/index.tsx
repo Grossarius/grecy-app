@@ -1,5 +1,8 @@
 import Image from 'next/image'
 import { Inter } from 'next/font/google'
+import { useEffect, useState } from 'react';
+import path from 'path';
+import { promises as fs } from 'fs';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -10,6 +13,24 @@ export default function Home() {
     if (!isBrowser()) return;
     window.scrollTo({ top: 1000, behavior: 'smooth' });
   }
+
+  async function generateAPIHandler(){
+    // useEffect(()=>{
+    //   fetch("http://127.0.0.1:5000/get_product")
+    //     .then((response) => response.json())
+    //     .then((data) => console.log(data))
+    //     .catch(error => console.log(error))
+    // }, []);
+    fetch("http://127.0.0.1:5000/get_product",
+    {
+      method: 'POST',
+    })
+        .then((response) => response.json())
+        .then((data) => console.log(data))
+        .catch(error => console.log(error))
+  }
+
+
 
   return (
     <div className='Parent'>
@@ -34,7 +55,7 @@ export default function Home() {
           <p className='flex w-full text-text1 text-2xl font-medium justify-center'>Enter your recipe:</p>
           <textarea className='text-text1 w-full h-96 text-lg p-4' placeholder='Enter your recipe'>Testtest</textarea>
           <div className='flex w-full justify-center'>
-            <button className='bg-pri_btn1 px-16 py-4 rounded border border-text1 text-xl font-medium transition ease-in-out duration:500 hover:bg-transparent hover:text-text1 hover:scale-110 hover:-translate-y-1'>Find!</button>
+            <button onClick={generateAPIHandler} className='bg-pri_btn1 px-16 py-4 rounded border border-text1 text-xl font-medium transition ease-in-out duration:500 hover:bg-transparent hover:text-text1 hover:scale-110 hover:-translate-y-1'>Find!</button>
           </div>
         </div>
       </div>
@@ -68,10 +89,6 @@ export default function Home() {
             </div>
           </div>
 
-          
-          
-
-          
         </div>
       </div>
     </div>
