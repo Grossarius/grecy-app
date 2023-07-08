@@ -20,48 +20,6 @@ p = inflect.engine()
 app = Flask(__name__)
 CORS(app)
 
-# Items that has one of these ingredients will be removed from the result
-bad_list = [
-    "Artificial flavor",
-    "Artificial flavour",
-    "Natural flavor",
-    "Natural flavour",
-    "Aspartame",
-    "BHT",
-    "Calcium disodium EDTA",
-    "Color",
-    "Colour",
-    "Carrageenan",
-    "Corn starch",
-    "Corn syrup",
-    "Dextrose",
-    "Dough conditioners",
-    "Enriched flour",
-    "Bleached flour",
-    "Food color",
-    "Maltodextrin",
-    "Monoglycerides",
-    "Monosodium glutamate",
-    "Diglyceride",
-    "Natural flavor",
-    "Natural flavors",
-    "Polysorbate",
-    "Potassium sorbate",
-    "Sodium erythorbate",
-    "Sodium nitrate",
-    "Sodium nitrite",
-    "Sodium phosphate",
-    "Soy protein isolate",
-    "Splenda",
-    "Sugar",
-    "Syrup",
-    "Sweetener",
-    "Skim milk",
-    "Low fat",
-    "Reduced fat",
-    "Xylitol",
-]
-
 # ChatGPT setup to return JSON formatted data
 def json_gpt(input: str) -> Dict:
     completion = openai.ChatCompletion.create(
@@ -77,20 +35,20 @@ def json_gpt(input: str) -> Dict:
     parsed = json.loads(text)
     return parsed
 
-# ChatGPT to get ingredients from recipes
-def get_recipe_ingredients(recipe: str) -> List[str]:
-    QUERIES_INPUT = f"""
-    Get all the ingredients in the recipe. 
-    This is the recipe: {recipe}
-    Only include ingredients that are in the recipe, don't include the measurements.
-    Format: {{"Ingredients": ["ingredient_1", "ingredient_2",...]}}
-    """
+# # ChatGPT to get ingredients from recipes
+# def get_recipe_ingredients(recipe: str) -> List[str]:
+#     QUERIES_INPUT = f"""
+#     Get all the ingredients in the recipe. 
+#     This is the recipe: {recipe}
+#     Only include ingredients that are in the recipe, don't include the measurements.
+#     Format: {{"Ingredients": ["ingredient_1", "ingredient_2",...]}}
+#     """
 
-    similar_products = json_gpt(QUERIES_INPUT)["Ingredients"]
-    return similar_products
+#     similar_products = json_gpt(QUERIES_INPUT)["Ingredients"]
+#     return similar_products
 
 # ChatGPT to categorize data into their general categories that match the Woolies app
-def categorize_ingredients(ingredients: List[str]) -> Dict[str, List[str]]:
+def categorize_ingredients(recipe: str) -> Dict[str, List[str]]:
     # Give ChatGPT related subcategories of the general categories -> better chance of finding the right category
     category_dict = {
         "bakery": ["bakery", "bread", "pastries"],
@@ -98,41 +56,25 @@ def categorize_ingredients(ingredients: List[str]) -> Dict[str, List[str]]:
         "drinks": ["drinks", "juices", "soda", "water", "tea", "coffee", "energy drinks"],
         "freezer": ["freezer", "frozen meals", "ice cream", "frozen vegetables", "frozen fruit"],
         "fruit-veg": ["fruit-veg", "fruits", "vegetables", "salads", "organic", "fresh herbs"],
-        "health-wellness health-foods": ["health-wellness", "vitamins", "superfoods", "protein bars", "health-foods", "health foods", "dried fruit, nuts, seeds"],
-        "lunch-box": ["lunch-box", "sandwiches", "snack packs", "fruit cups"],
-        "pantry": ["pantry", "canned goods", "breakfast and spreads", "spices", "condiments", "pasta, rice, grains", "cooking sauces", "oil and vinegar", "international foods"],
+        "health-wellness health-foods": ["health-wellness","dried fruit, nuts, seeds"],
+        "lunch-box": ["lunch-box", "sandwiches", "snack packs", "fruit cups", "sweet"],
+        "pantry": ["pantry", "canned goods", "spreads", "spices", "condiments", "pasta, rice, grains", "cooking sauces", "oil and vinegar", "international foods"],
         "poultry-meat-seafood": ["poultry-meat-seafood", "poultry", "meat", "seafood"]
     }
     # Put them all into a list for ChatGPT and then re-categorize them later
     category_list = [item for sublist in category_dict.values() for item in sublist]
-    # Hard coding so ChatGPT doesn't have to process some ingredients -> Save money
-    known_category = {
-        "bakery": ["bakery", "bread", "pastries"],
-        "dairy-eggs-fridge": ["parmigiano reggiano", "milk", "cheese", "yogurt", "cream", "dips", "butter","egg"],
-        "drinks": ["drinks", "juices", "soda", "water", "tea", "coffee", "energy drinks"],
-        "freezer": ["freezer", "frozen meals", "ice cream", "frozen vegetables", "frozen fruit"],
-        "fruit-veg": ["scallion", "chopped onion", "white onion", "garlic cloves", "basil", "lime", "lemon","ginger", "chilli"],
-        "health-wellness health-foods": ["health-wellness", "vitamins", "superfoods", "protein bars", "health-foods", "health foods", "dried fruit, nuts, seeds"],
-        "lunch-box": [],
-        "pantry": ["fish sauce", "flour", "self-raising flour"],
-        "poultry-meat-seafood": ["poultry", "meat", "seafood"]
-    }
-    known_product = {}
-    for product in ingredients:
-        product2 = p.singular_noun(product.lower()) or product.lower()   
-        for k, v in known_category.items():
-            if product2 in v:
-                known_product[k] = known_product.get(k, []) + [product]
-                print(product)
-                ingredients.remove(product)
-                break
 
     # ChatGPT to help categorize items
     QUERIES_INPUT = f"""
-    Group the items into their respective categories. Use ONLY the provided categories and items to create the desired grouping.
+    Get all the ingredients in the recipe. 
+    This is the recipe: {recipe}
+    Only include ingredients that are in the recipe, don't include the measurements.
+
+    Then,
+    
+    Group the ingredients into the provided categories below. Use ONLY the provided categories and items.
 
     Categories: {category_list}
-    Items: {ingredients}
 
     Skip empty lists.
     Make sure to group all the items.
@@ -145,7 +87,6 @@ def categorize_ingredients(ingredients: List[str]) -> Dict[str, List[str]]:
     ingredients = json_gpt(QUERIES_INPUT)
     print("Output from GPT: ", ingredients)
     # Combine the known categories and the ones from ChatGPT
-    ingredients = {key: known_product.get(key, []) + ingredients.get(key, []) for key in set(known_product) | set(ingredients)}
     # Merge the subcategories into the general categories
     categorized_items = {}
     for key, value in ingredients.items():
@@ -162,7 +103,7 @@ def categorize_ingredients(ingredients: List[str]) -> Dict[str, List[str]]:
     return categorized_items
 
 # Find all the good products of an item (ex: Item: Soba Noodles -> Products: "Obento Soba Noodles", "Redrock Soba Noodles", "Hakubaku Soba Noodles")")    
-def find_product(product: str, df, k: str, filter_ingredient = True, bad_list: List[str] = bad_list) -> pd.DataFrame:
+def find_product(product: str, df, k: str, filter_ingredient = True, bad_list: List[str] = []) -> pd.DataFrame:
     # Hard code: remove an ingredient from the bad list and add them back later (ex: Syrup is bad but Maple Syrup isn't)
     add_list = []
     if "maple syrup" in product:
@@ -177,6 +118,10 @@ def find_product(product: str, df, k: str, filter_ingredient = True, bad_list: L
         product = product.replace("ground", "mince")
     if ("raising" in product and "flour" in product) or "self-raising" in product:
         product = "raising flour"
+    if "cornflour" in product or "cornstarch" in product:
+        product = "cornflour"
+    if "all-purpose" in product and "flour" in product:
+        product = "plain flour"
     
     all_replace = ["parmesan", "cheddar", "basil", "oregano", "pepper flakes", "spaghetti"]
     for i in all_replace:
@@ -190,6 +135,9 @@ def find_product(product: str, df, k: str, filter_ingredient = True, bad_list: L
 
     # Default: make the product singular. So the items below will be pluralized
     product = p.singular_noun(product.lower()) or product.lower()
+    # Remove things in () (ex: "Soba Noodles (Buckwheat)" -> "Soba Noodles")
+    product = re.sub(r'\([^)]*\)', '', product)
+    print("Product after processed: ", product)
     product = product.strip()
     
     words_to_pluralize = ["noodle", "egg"]
@@ -301,15 +249,15 @@ def find_product(product: str, df, k: str, filter_ingredient = True, bad_list: L
     return clean_products_df_sorted
 
 # The main function that return all the good products, a grocery list, and a list of items that have no good products
-def get_all_product(data: str, top = 5, bad_list: List[str] = bad_list) -> Tuple[Dict[str, List[Dict[str, any]]], List[Dict[str, any]], Dict[str, List[str]]]:
+def get_all_product(data: str, top = 5, bad_list: List[str] = []) -> Tuple[Dict[str, List[Dict[str, any]]], List[Dict[str, any]], Dict[str, List[str]]]:
     base_dir = os.path.dirname(os.path.abspath(__file__))
     data_dir = os.path.join(base_dir, '..', 'data')
     
     all_none = {}
     all_res = defaultdict(list)
+    buy_list = []
 
-    ingredients = get_recipe_ingredients(data)
-    categorized_items = categorize_ingredients(ingredients)
+    categorized_items = categorize_ingredients(data)
 
     # Load data and find product then add them to a json called all_res
     for k, v in categorized_items.items():
@@ -358,6 +306,8 @@ def get_all_product(data: str, top = 5, bad_list: List[str] = bad_list) -> Tuple
             for index, row in clean_products_df_sorted.head(top).iterrows():
                 product_name = row['Product Name']
                 ingredients = row['Ingredients']
+                if ingredients is not str:
+                    ingredients = "No ingredients listed"
                 cup_price = row['Cup Price']
                 price = row['Price']
                 stockcode = row['Stockcode']
@@ -388,73 +338,74 @@ def get_all_product(data: str, top = 5, bad_list: List[str] = bad_list) -> Tuple
                     lowest_price_product = product
             buy_list.append(lowest_price_product)
     return all_res, buy_list, all_none
-    
-# Get the bad products that are not found (optional)
-def get_bad_product(all_none):
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    data_dir = os.path.join(base_dir, '..', 'data')
-
-
-    still_none = []
-    all_res_2 = defaultdict(list)
-    for k, v in all_none.items():
-        file_path2 = None
-        if k == "pantry":
-            file_path = os.path.join(data_dir, f'Woolies {k} 1 info.xlsx')
-            file_path2 = os.path.join(data_dir, f'Woolies {k} 2 info.xlsx')
-
-            # file_path = f"{root_path}Woolies {k} 1 info.xlsx"
-            # file_path2 = f"{root_path}Woolies {k} 2 info.xlsx"
-        else:
-            file_path = os.path.join(data_dir, f'Woolies {k} info.xlsx')
-            # file_path = f"{root_path}Woolies {k} info.xlsx"
-        df = pd.read_excel(file_path)
-        if file_path2:
-            df2 = pd.read_excel(file_path2)
-            df = pd.concat([df, df2], ignore_index=True)
-        for product in v:
-            print(product)
-            original_product = product
-            clean_products_df_sorted = find_product(product, df, k, filter_ingredient=False, bad_list = bad_list)
-            # GET THE TOP 5 CHEAPEST UNIT PRICE PRODUCTS
-            for index, row in clean_products_df_sorted.head(5).iterrows():
-                product_name = row['Product Name']
-                ingredients = row['Ingredients']
-                cup_price = row['Cup Price']
-                price = row['Price']
-                stockcode = row['Stockcode']
-                image = row['Image']
-                cup = row['Cup']
-                
-                all_res_2[product].append({
-                    'product_name': product_name,
-                    'ingredients': ingredients,
-                    'cup_price': cup_price,
-                    'price': price,
-                    'stockcode': "https://www.woolworths.com.au/shop/productdetails/{}".format(stockcode),
-                    'image': image,
-                    'cup': cup
-                })
-            if clean_products_df_sorted.empty:
-                still_none.append(original_product)
-            print("------------------")
 
 @app.route('/get_product', methods=['POST'])
 def get_product_api():
-    data = request.get_json()
+    # Items that has one of these ingredients will be removed from the result
+    bad_list = [
+        "Artificial flavor",
+        "Artificial flavour",
+        "Natural flavor",
+        "Natural flavour",
+        "Aspartame",
+        "BHT",
+        "Calcium disodium EDTA",
+        "Color",
+        "Colour",
+        "Carrageenan",
+        "Corn starch",
+        "Corn syrup",
+        "Dextrose",
+        "Dough conditioners",
+        "Enriched flour",
+        "Bleached flour",
+        "Food color",
+        "Maltodextrin",
+        "Monoglycerides",
+        "Monosodium glutamate",
+        "Diglyceride",
+        "Natural flavor",
+        "Natural flavors",
+        "Polysorbate",
+        "Potassium sorbate",
+        "Sodium erythorbate",
+        "Sodium nitrate",
+        "Sodium nitrite",
+        "Sodium phosphate",
+        "Soy protein isolate",
+        "Splenda",
+        "Sugar",
+        "Syrup",
+        "Sweetener",
+        "Skim milk",
+        "Low fat",
+        "Reduced fat",
+        "Xylitol",
+    ]
+    data = request.get_json()["requestBody"]
     prompt = data.get('prompt')
-    print("Prompt: ", prompt)
+    filter = data.get('filter')
+    print("Data: ", data)
+    # Get the bad products that are not found 
+    if not filter:
+        prompt = data["allItems"]
+        bad_list = []
     all_res, buy_list, all_none = get_all_product(data = prompt, top = 5, bad_list = bad_list)
     response = {
         'all_res': dict(all_res),
         'buy_list': buy_list,
-        'all_none': dict(all_none)
+        'all_none': dict(all_none),
+        'filter': filter
     }
+
+    print(response)
+
     # Return the JSON response object
     return jsonify(response)
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 # recipe = """
 # 5 tbsp oil
 # 2 eggs lightly beaten

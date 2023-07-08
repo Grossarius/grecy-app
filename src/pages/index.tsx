@@ -20,42 +20,63 @@ interface AllRes {
   [key: string]: Product[];
 }
 
+interface AllNone {
+  [key: string]: string[];
+}
+
 function AllResComponent({ allRes }: { allRes: AllRes }) {
   return (
     <div className="my-8">
       {Object.keys(allRes).map((key) => (
         <div key={key} className="mb-4">
           <h2 className="text-2xl font-bold mb-2">{key}</h2>
-          <BuyList buyList={allRes[key]} />
+          <BuyList buyList={allRes[key]} id={"AllRes"} />
         </div>
       ))}
     </div>
   );
 }
 
-function BuyList({ buyList }: { buyList: Product[] }) {
+function BuyList({ id, buyList }: { id: string; buyList: Product[] }) {
+  // Only show price if it's the grocery list
+  let totalPrice: number = 0;
+  if (id != "AllRes") {
+    totalPrice = buyList.reduce((acc, item) => acc + item.price, 0);
+  }
+
   return (
-    <div className="flex overflow-x-auto space-x-4">
-      {buyList.map((item, index) => (
-        <div
-          key={index}
-          className="flex flex-col items-center bg-white rounded-lg p-4 shadow"
-        >
-          <img
-            src={item.image}
-            alt={item.product_name}
-            className="w-24 h-24 object-cover rounded-full"
-          />
-          <p className="text-center font-semibold">{item.product_name}</p>
-          <p className="text-gray-600">Price: {item.price}</p>
-          <p className="text-gray-600">
-            Cup Price: {item.cup_price}/{item.cup}
-          </p>
-          <a href={item.stockcode} className="text-blue-500 underline">
-            {item.stockcode}
-          </a>
+    <div>
+      <div className="flex overflow-x-auto space-x-4">
+        {buyList.map((item, index) => (
+          <div
+            key={index}
+            className="flex flex-col items-center bg-white rounded-lg p-4 shadow"
+          >
+            <img
+              src={item.image}
+              alt={item.product_name}
+              className="w-24 h-24 object-cover rounded-full"
+            />
+            <p className="text-center font-semibold">{item.product_name}</p>
+            <p className="text-gray-600">Price: {item.price}</p>
+            <p className="text-gray-600">
+              Cup Price: {item.cup_price}/{item.cup}
+            </p>
+            <a href={item.stockcode} className="text-blue-500 underline">
+              Link to the product
+            </a>
+          </div>
+        ))}
+      </div>
+
+      {/* Only show price if it's the grocery list */}
+      {totalPrice > 0 ? (
+        <div className="mt-4">
+          <p className="text-lg font-semibold">Total Price: {totalPrice}</p>
         </div>
-      ))}
+      ) : (
+        <> </>
+      )}
     </div>
   );
 }
@@ -63,11 +84,14 @@ function BuyList({ buyList }: { buyList: Product[] }) {
 export default function Home() {
   const isBrowser = () => typeof window !== "undefined";
   const [value, setValue] = useState<String>();
-  // const [allRes, setAllRes] = useState<Record<string, any>>({});
   const [allRes, setAllRes] = useState<AllRes>({});
-  // const [buyList, setBuyList] = useState<Record<string, any>[]>([]);
   const [buyList, setBuyList] = useState<Product[]>([]);
-  const [allNone, setAllNone] = useState<Record<string, string[]>>({});
+  const [allNone, setAllNone] = useState<AllNone>({});
+  const [allItems, setAllItems] = useState<string[]>([]);
+
+  const [allResNoFilter, setAllResNoFilter] = useState<AllRes>({});
+  const [buyListNoFilter, setBuyListNoFilter] = useState<Product[]>([]);
+  const [allNoneNoFilter, setAllNoneNoFilter] = useState<AllNone>({});
 
   const [display, setDisplay] = useState();
 
@@ -82,8 +106,25 @@ export default function Home() {
     window.scrollTo({ top: 1000, behavior: "smooth" });
   }
 
-  async function generateAPIHandler() {
-    console.log(value);
+  async function generateAPIHandler(buttonId: string) {
+    let requestBody: {
+      prompt?: string;
+      allItems?: string[];
+      filter?: boolean;
+    } = {};
+    if (buttonId === "re_generate_btn") {
+      requestBody = {
+        allItems: allItems,
+        filter: false,
+      };
+    } else {
+      requestBody = {
+        prompt: value as string,
+        filter: true,
+      };
+    }
+
+    console.log(requestBody);
 
     fetch("http://127.0.0.1:5000/get_product", {
       method: "POST",
@@ -92,31 +133,25 @@ export default function Home() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        prompt: value,
+        requestBody,
       }),
     })
       .then((response) => response.json())
       .then((data) => {
-        setAllRes(data.all_res);
-        setBuyList(data.buy_list);
-        setAllNone(data.all_none);
+        console.log(data.filter);
+        if (data.filter) {
+          setAllRes(data.all_res);
+          setBuyList(data.buy_list);
+          setAllNone(data.all_none);
+          setAllItems(Object.values(data.all_none).flat() as string[]);
+        } else {
+          setAllRes((prevAllRes) => ({ ...prevAllRes, ...data.all_res }));
+          setBuyList((prevBuyList) => [...prevBuyList, ...data.buy_list]);
+          setAllNone((prevAllNone) => ({ ...prevAllNone, ...data.all_none }));
+          setAllItems(Object.values(data.all_none).flat() as string[]);
+        }
       })
       .catch((error) => console.log(error));
-  }
-
-  function displayItem(items: {}) {
-    return <div className="flex-shrink-0 h-64 w-64  bg-center bg-cover"></div>;
-  }
-
-  function displayRows(items: {}) {
-    return (
-      <div className="flex-col">
-        <label className="text-text1 font-medium text-3xl">{}</label>
-        <div className="overflow-x-scroll flex w-full space-x-12">
-          <div className="flex-shrink-0 h-64 w-64 bg-gray-600"></div>
-        </div>
-      </div>
-    );
   }
 
   return (
@@ -170,7 +205,7 @@ export default function Home() {
           <div className="flex w-full justify-center">
             <button
               id="generate_btn"
-              onClick={generateAPIHandler}
+              onClick={() => generateAPIHandler("generate_btn")}
               className="bg-pri_btn1 px-16 py-4 rounded border border-text1 text-xl font-medium transition ease-in-out duration:500 hover:bg-transparent hover:text-text1 hover:scale-110 hover:-translate-y-1"
             >
               Find!
@@ -193,7 +228,50 @@ export default function Home() {
           <div className="container mx-auto">
             <h1 className="text-2xl font-bold mb-4">Grocery List</h1>
             {buyList.length > 0 ? (
-              <BuyList buyList={buyList} />
+              <BuyList buyList={buyList} id="" />
+            ) : (
+              <p>No items to display.</p>
+            )}
+          </div>
+
+          <div className="container mx-auto">
+            <h1 className="text-2xl font-bold mb-4">
+              Items that weren't found
+            </h1>
+            {allItems.length > 0 ? (
+              <p>{allItems.join(", ")}</p>
+            ) : (
+              <p>No items to display.</p>
+            )}
+          </div>
+
+          <div className="container mx-auto">
+            {allItems.length > 0 ? (
+              <button
+                id="re_generate_btn"
+                onClick={() => generateAPIHandler("re_generate_btn")}
+                className="bg-pri_btn1 px-16 py-4 rounded border border-text1 text-xl font-medium transition ease-in-out duration:500 hover:bg-transparent hover:text-text1 hover:scale-110 hover:-translate-y-1"
+              >
+                Find missing items without filtering
+              </button>
+            ) : (
+              <></>
+            )}
+          </div>
+
+          <div className="container mx-auto">
+            <h1 className="text-2xl font-bold mb-4">All Results</h1>
+            {Object.keys(allResNoFilter).length > 0 ? (
+              <AllResComponent allRes={allResNoFilter} />
+            ) : (
+              <p>No results to display.</p>
+            )}
+          </div>
+
+          <div className="container mx-auto">
+            <h1 className="text-2xl font-bold mb-4">Grocery List</h1>
+            {buyListNoFilter.length > 0 ? (
+              <BuyList buyList={buyListNoFilter} id="" />
             ) : (
               <p>No items to display.</p>
             )}
