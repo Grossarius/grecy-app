@@ -56,9 +56,9 @@ def categorize_ingredients(recipe: str) -> Dict[str, List[str]]:
         "drinks": ["drinks", "juices", "soda", "water", "tea", "coffee", "energy drinks"],
         "freezer": ["freezer", "frozen meals", "ice cream", "frozen vegetables", "frozen fruit"],
         "fruit-veg": ["fruit-veg", "fruits", "vegetables", "salads", "organic", "fresh herbs"],
-        "health-wellness health-foods": ["health-wellness","dried fruit, nuts, seeds"],
+        "health-wellness health-foods": ["dried fruit", "nuts", "seeds","health-wellness"],
         "lunch-box": ["lunch-box", "sandwiches", "snack packs", "fruit cups", "sweet"],
-        "pantry": ["pantry", "canned goods", "spreads", "spices", "condiments", "pasta, rice, grains", "cooking sauces", "oil and vinegar", "international foods"],
+        "pantry": ["pantry", "canned goods", "spreads", "spices", "seasoning", "condiments", "pasta, rice, grains", "cooking sauces", "oil and vinegar", "international foods", "flour"],
         "poultry-meat-seafood": ["poultry-meat-seafood", "poultry", "meat", "seafood"]
     }
     # Put them all into a list for ChatGPT and then re-categorize them later
@@ -110,7 +110,7 @@ def find_product(product: str, df, k: str, filter_ingredient = True, bad_list: L
         add_list.append("Syrup")
         bad_list.remove("Syrup")
     # Hard code: renaming/removing/replacing words from the product's name
-    if "scallion" in product:
+    if "scallion" in product or "green onion" in product:
         product = "spring onion"
     if "ketchup" in product:
         product = "tomato sauce"
@@ -128,7 +128,8 @@ def find_product(product: str, df, k: str, filter_ingredient = True, bad_list: L
         if i in product:
             product = i
 
-    words_to_remove = ["dry", "chopped", "shred", "shredded", "diced", "sliced", "grated", "cubed", "julienne", "pureed", "mashed", "leaves", "crushed", "sliced", "whole", "boneless"]
+    words_to_remove = ["skinless", "fresh", "dry", "chopped", "shred", "shredded", "diced", "sliced", "grated", "cubed", "julienne", "pureed", "mashed", "leaves", "crushed", "sliced", "whole", "boneless"]
+    print("Product before processed: ", words_to_remove)
     for word in words_to_remove:
         if word in product:
             product = product.replace(word, "")
@@ -138,9 +139,10 @@ def find_product(product: str, df, k: str, filter_ingredient = True, bad_list: L
     # Remove things in () (ex: "Soba Noodles (Buckwheat)" -> "Soba Noodles")
     product = re.sub(r'\([^)]*\)', '', product)
     print("Product after processed: ", product)
+    product = product.replace(",", "")
     product = product.strip()
     
-    words_to_pluralize = ["noodle", "egg"]
+    words_to_pluralize = ["noodle", "egg", "seed"]
     exit_loop = False
     for word in words_to_pluralize:
         if exit_loop:
@@ -259,6 +261,46 @@ def get_all_product(data: str, top = 5, bad_list: List[str] = []) -> Tuple[Dict[
 
     categorized_items = categorize_ingredients(data)
 
+    # Recategorize some products according to the manual list
+    known_category = {
+        "bakery": ["bakery", "bread", "pastries"],
+        "dairy-eggs-fridge": ["parmigiano reggiano", "milk", "cheese", "yogurt", "cream", "dips", "butter","egg"],
+        "drinks": ["drinks", "juices", "soda", "water", "tea", "coffee", "energy drinks"],
+        "freezer": ["freezer", "frozen meals", "ice cream", "frozen vegetables", "frozen fruit"],
+        "fruit-veg": ["scallion", "chopped onion", "white onion", "garlic cloves", "basil", "lime", "lemon","ginger", "chilli"],
+        "health-wellness health-foods": [""],
+        "lunch-box": [],
+        "pantry": ["fish sauce", "flour", "self-raising flour", "glucose syrup", "cereal", "sesame seed", "mirin"],
+        "poultry-meat-seafood": ["poultry", "meat", "seafood"]
+    }
+    known_product = {}
+    item_list = list(categorized_items.values())
+    print("Item", item_list)
+    for product in item_list:
+        product = product[0]
+        product2 = p.singular_noun(product.lower()) or product.lower()   
+        for k, v in known_category.items():
+            print("Product: ", product2)
+            print("Category: ", v)
+            if product2 in v:
+                known_product[k] = known_product.get(k, []) + [product]
+                # Iterate over the dictionary to find the item and delete
+                categorized_items = {key: value for key, value in categorized_items.items() if value[0] != product}
+                print(product)
+                print("after: ", categorized_items)
+                for key, value in list(categorized_items.items()):
+                    if value == product:
+                        del categorized_items[key]
+                break
+    # Combine the known categories and the ones from ChatGPT
+    categorized_items = {key: known_product.get(key, []) + categorized_items.get(key, []) for key in set(known_product) | set(categorized_items)}
+    # Filter out ones with empty list
+    categorized_items = {key: value for key, value in categorized_items.items() if value}
+    # Remove duplicate
+    for key, values in categorized_items.items():
+        categorized_items[key] = list(set(values))
+    ###
+
     # Load data and find product then add them to a json called all_res
     for k, v in categorized_items.items():
         # Load files
@@ -292,15 +334,6 @@ def get_all_product(data: str, top = 5, bad_list: List[str] = []) -> Tuple[Dict[
             if skip:
                 continue
             clean_products_df_sorted = find_product(product, df, k, bad_list = bad_list)
-            # Find similar products (ex: Spring onion -> green onion) if not found
-            if clean_products_df_sorted.empty:
-                similar_products = []
-                for product in similar_products:
-                    # If the product is not found, try to find the singular/plural version of the product
-                    clean_products_df_sorted = find_product(product, df, k, bad_list = bad_list)
-                    if not clean_products_df_sorted.empty:
-                        break
-                    print("Current alternative product: ", product)
             
             # GET THE TOP 5 CHEAPEST UNIT PRICE PRODUCTS
             for index, row in clean_products_df_sorted.head(top).iterrows():

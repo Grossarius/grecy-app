@@ -4,6 +4,7 @@ import { SetStateAction, useEffect, useState } from "react";
 import path from "path";
 import { promises as fs } from "fs";
 import { stringify } from "querystring";
+import { text } from "stream/consumers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,7 +30,13 @@ function AllResComponent({ allRes }: { allRes: AllRes }) {
     <div className="my-8">
       {Object.keys(allRes).map((key) => (
         <div key={key} className="mb-4">
-          <h2 className="text-2xl font-bold mb-2">{key}</h2>
+          <a
+            href={`https://www.woolworths.com.au/shop/search/products?searchTerm=${key}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <p className="text-2xl font-bold mb-2">{key}</p>
+          </a>
           <BuyList buyList={allRes[key]} id={"AllRes"} />
         </div>
       ))}
@@ -50,32 +57,42 @@ function BuyList({ id, buyList }: { id: string; buyList: Product[] }) {
         {buyList.map((item, index) => (
           <div
             key={index}
-            className="flex flex-col items-center bg-white rounded-lg p-4 shadow"
+            className="flex flex-col bg-white rounded-lg p-4 shadow-md transition-transform duration-300 hover:scale-105"
+            style={{
+              minWidth: "200px",
+              maxWidth: "200px",
+              minHeight: "300px",
+              maxHeight: "300px",
+            }} // Adjust the width and height as needed
           >
-            <img
-              src={item.image}
-              alt={item.product_name}
-              className="w-24 h-24 object-cover rounded-full"
-            />
-            <p className="text-center font-semibold">{item.product_name}</p>
-            <p className="text-gray-600">Price: {item.price}</p>
-            <p className="text-gray-600">
-              Cup Price: {item.cup_price}/{item.cup}
-            </p>
-            <a href={item.stockcode} className="text-blue-500 underline">
-              Link to the product
-            </a>
+            <div className="flex flex-col justify-between h-full overflow-auto">
+              <div className="flex flex-col items-center">
+                <img
+                  src={item.image}
+                  alt={item.product_name}
+                  className="w-24 h-24 object-cover rounded-full"
+                />
+                <p className="text-center font-semibold">{item.product_name}</p>
+              </div>
+              <div className="flex flex-col mt-auto items-center">
+                <p className="text-gray-600">Price: {item.price}</p>
+                <p className="text-gray-600">
+                  Cup Price: {item.cup_price}/{item.cup}
+                </p>
+                <a href={item.stockcode} className="text-blue-500 underline">
+                  Link to the product
+                </a>
+              </div>
+            </div>
           </div>
         ))}
       </div>
 
       {/* Only show price if it's the grocery list */}
-      {totalPrice > 0 ? (
+      {totalPrice > 0 && (
         <div className="mt-4">
           <p className="text-lg font-semibold">Total Price: {totalPrice}</p>
         </div>
-      ) : (
-        <> </>
       )}
     </div>
   );
@@ -105,6 +122,17 @@ export default function Home() {
     if (!isBrowser()) return;
     window.scrollTo({ top: 1000, behavior: "smooth" });
   }
+
+  const handleKeyDown = (event: {
+    key: string;
+    shiftKey: any;
+    preventDefault: () => void;
+  }) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      generateAPIHandler("generate_btn");
+    }
+  };
 
   async function generateAPIHandler(buttonId: string) {
     let requestBody: {
@@ -196,15 +224,15 @@ export default function Home() {
           </p>
           <textarea
             onChange={textAreaHandler}
+            onKeyDown={handleKeyDown}
             id="prompt"
             className="text-text1 w-full h-96 text-lg p-4"
             placeholder="Enter your recipe"
-          >
-            Testtest
-          </textarea>
+          ></textarea>
           <div className="flex w-full justify-center">
             <button
               id="generate_btn"
+              type="submit"
               onClick={() => generateAPIHandler("generate_btn")}
               className="bg-pri_btn1 px-16 py-4 rounded border border-text1 text-xl font-medium transition ease-in-out duration:500 hover:bg-transparent hover:text-text1 hover:scale-110 hover:-translate-y-1"
             >
@@ -217,7 +245,7 @@ export default function Home() {
       <div className="flex h-fit w-full bg-green-100 px-32 py-32">
         <div className="flex-col w-full px-32 space-y-24">
           <div className="container mx-auto">
-            <h1 className="text-2xl font-bold mb-4">All Results</h1>
+            <h1 className="text-2xl font-bold mb-4 text-center">All Results</h1>
             {Object.keys(allRes).length > 0 ? (
               <AllResComponent allRes={allRes} />
             ) : (
@@ -226,7 +254,9 @@ export default function Home() {
           </div>
 
           <div className="container mx-auto">
-            <h1 className="text-2xl font-bold mb-4">Grocery List</h1>
+            <h1 className="text-2xl font-bold mb-4 text-center">
+              Grocery List
+            </h1>
             {buyList.length > 0 ? (
               <BuyList buyList={buyList} id="" />
             ) : (
