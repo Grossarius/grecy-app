@@ -70,7 +70,7 @@ def categorize_ingredients(ingredients: List[str]) -> Dict[str, List[str]]:
         "drinks": ["drinks", "juices", "soda", "water", "tea", "coffee", "energy drinks"],
         "freezer": ["freezer", "frozen meals", "ice cream", "frozen vegetables", "frozen fruit"],
         "fruit-veg": ["scallion", "chopped onion", "white onion", "garlic cloves", "basil", "lime", "lemon","ginger", "chilli"],
-        "health-wellness health-foods": [],
+        "health-wellness health-foods": ["seed"],
         "lunch-box": [],
         "pantry": ["fish sauce", "flour", "self-raising flour", "glucose syrup", "cereal"],
         "poultry-meat-seafood": ["poultry", "meat", "seafood"]
