@@ -29,7 +29,7 @@ function AllResComponent({ allRes }: { allRes: AllRes }) {
   return (
     <div className="my-8">
       {Object.keys(allRes).map((key) => (
-        <div key={key} className="mb-4">
+        <div key={key} className="mb-4 text-center">
           <a
             href={`https://www.woolworths.com.au/shop/search/products?searchTerm=${key}`}
             target="_blank"
@@ -100,17 +100,60 @@ function BuyList({ id, buyList }: { id: string; buyList: Product[] }) {
 
 export default function Home() {
   const isBrowser = () => typeof window !== "undefined";
+  const defaultBadList = [
+    "Artificial flavor",
+    "Artificial flavour",
+    "Natural flavor",
+    "Natural flavour",
+    "Aspartame",
+    "BHT",
+    "Calcium disodium EDTA",
+    "Color",
+    "Colour",
+    "Carrageenan",
+    "Corn starch",
+    "Corn syrup",
+    "Dextrose",
+    "Dough conditioners",
+    "Enriched flour",
+    "Bleached flour",
+    "Food color",
+    "Maltodextrin",
+    "Monoglycerides",
+    "Monosodium glutamate",
+    "Diglyceride",
+    "Natural flavor",
+    "Natural flavors",
+    "Polysorbate",
+    "Potassium sorbate",
+    "Sodium erythorbate",
+    "Sodium nitrate",
+    "Sodium nitrite",
+    "Sodium phosphate",
+    "Soy protein isolate",
+    "Splenda",
+    "Sugar",
+    "Syrup",
+    "Sweetener",
+    "Skim milk",
+    "Low fat",
+    "Reduced fat",
+    "Xylitol",
+  ];
+
   const [value, setValue] = useState<String>();
+
   const [allRes, setAllRes] = useState<AllRes>({});
   const [buyList, setBuyList] = useState<Product[]>([]);
   const [allNone, setAllNone] = useState<AllNone>({});
   const [allItems, setAllItems] = useState<string[]>([]);
 
-  const [allResNoFilter, setAllResNoFilter] = useState<AllRes>({});
-  const [buyListNoFilter, setBuyListNoFilter] = useState<Product[]>([]);
-  const [allNoneNoFilter, setAllNoneNoFilter] = useState<AllNone>({});
+  const [top, setTop] = useState<number>(10);
+  const [badList, setBadList] = useState<string[]>([]);
 
-  const [display, setDisplay] = useState();
+  // One for each generate button (the second one only appears if allNone is not empty)
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading2, setIsLoading2] = useState(false);
 
   const textAreaHandler = (event: {
     target: { value: SetStateAction<String | undefined> };
@@ -134,21 +177,51 @@ export default function Home() {
     }
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Perform any logic or submit the form here
+    console.log(top);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    setTop(Number(inputValue));
+  };
+
+  const handleBadListChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const inputValue = e.target.value;
+    const ingredients = inputValue
+      .split(/[,\s]+/)
+      .map((ingredient) => ingredient.trim());
+    setBadList(ingredients);
+  };
+
+  function badListHandler() {
+    setBadList(defaultBadList);
+  }
   async function generateAPIHandler(buttonId: string) {
     let requestBody: {
       prompt?: string;
       allItems?: string[];
       filter?: boolean;
+      top?: number;
+      badList?: string[];
     } = {};
     if (buttonId === "re_generate_btn") {
+      setIsLoading2(true);
       requestBody = {
         allItems: allItems,
         filter: false,
+        top: top,
+        badList: badList,
       };
     } else {
+      setIsLoading(true);
       requestBody = {
         prompt: value as string,
         filter: true,
+        top: top,
+        badList: badList,
       };
     }
 
@@ -177,6 +250,11 @@ export default function Home() {
           setBuyList((prevBuyList) => [...prevBuyList, ...data.buy_list]);
           setAllNone((prevAllNone) => ({ ...prevAllNone, ...data.all_none }));
           setAllItems(Object.values(data.all_none).flat() as string[]);
+        }
+        if (buttonId === "re_generate_btn") {
+          setIsLoading2(false);
+        } else {
+          setIsLoading(false);
         }
       })
       .catch((error) => console.log(error));
@@ -229,6 +307,51 @@ export default function Home() {
             className="text-text1 w-full h-96 text-lg p-4"
             placeholder="Enter your recipe"
           ></textarea>
+
+          <div className="mb-4">
+            <label
+              htmlFor="badList"
+              className="block mb-2 font-medium text-gray-700"
+            >
+              Enter ingredients you don't want to include (separated by commas):
+            </label>
+            <textarea
+              id="badList"
+              value={badList.join(", ")}
+              rows={3}
+              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+              onChange={handleBadListChange}
+            />
+          </div>
+          <div className="flex w-full justify-center">
+            <button
+              id="bad_list_btn"
+              type="submit"
+              onClick={() => badListHandler()}
+              className="bg-pri_btn1 px-16 py-4 rounded border border-text1 text-xl font-medium transition ease-in-out duration:500 hover:bg-transparent hover:text-text1 hover:scale-110 hover:-translate-y-1"
+            >
+              Set default filtering
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="max-w-xs mx-auto">
+            <div className="mb-4">
+              <label
+                htmlFor="number"
+                className="block mb-2 font-medium text-gray-700"
+              >
+                Enter a number between 0 and 30:
+              </label>
+              <input
+                type="text"
+                id="number"
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+                value={top}
+                onChange={handleChange}
+              />
+            </div>
+          </form>
+
           <div className="flex w-full justify-center">
             <button
               id="generate_btn"
@@ -236,7 +359,7 @@ export default function Home() {
               onClick={() => generateAPIHandler("generate_btn")}
               className="bg-pri_btn1 px-16 py-4 rounded border border-text1 text-xl font-medium transition ease-in-out duration:500 hover:bg-transparent hover:text-text1 hover:scale-110 hover:-translate-y-1"
             >
-              Find!
+              {isLoading ? "Loading..." : "Find!"}
             </button>
           </div>
         </div>
@@ -265,7 +388,7 @@ export default function Home() {
           </div>
 
           <div className="container mx-auto">
-            <h1 className="text-2xl font-bold mb-4">
+            <h1 className="text-2xl font-bold mb-4 text-center">
               Items that weren't found
             </h1>
             {allItems.length > 0 ? (
@@ -275,35 +398,19 @@ export default function Home() {
             )}
           </div>
 
-          <div className="container mx-auto">
+          <div className="flex w-full justify-center">
             {allItems.length > 0 ? (
               <button
                 id="re_generate_btn"
                 onClick={() => generateAPIHandler("re_generate_btn")}
                 className="bg-pri_btn1 px-16 py-4 rounded border border-text1 text-xl font-medium transition ease-in-out duration:500 hover:bg-transparent hover:text-text1 hover:scale-110 hover:-translate-y-1"
               >
-                Find missing items without filtering
+                {isLoading2
+                  ? "Loading..."
+                  : "Find missing items without filtering"}
               </button>
             ) : (
               <></>
-            )}
-          </div>
-
-          <div className="container mx-auto">
-            <h1 className="text-2xl font-bold mb-4">All Results</h1>
-            {Object.keys(allResNoFilter).length > 0 ? (
-              <AllResComponent allRes={allResNoFilter} />
-            ) : (
-              <p>No results to display.</p>
-            )}
-          </div>
-
-          <div className="container mx-auto">
-            <h1 className="text-2xl font-bold mb-4">Grocery List</h1>
-            {buyListNoFilter.length > 0 ? (
-              <BuyList buyList={buyListNoFilter} id="" />
-            ) : (
-              <p>No items to display.</p>
             )}
           </div>
         </div>
