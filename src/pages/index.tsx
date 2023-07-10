@@ -239,6 +239,7 @@ export default function Home() {
     })
       .then((response) => response.json())
       .then((data) => {
+        console.log(data)
         console.log(data.filter);
         if (data.filter) {
           setAllRes(data.all_res);
@@ -274,99 +275,100 @@ export default function Home() {
           </p>
           <button
             onClick={scrollToPrompt}
-            className="flex text-2xl font-normal bg-pri_btn1 px-6 py-2 border border-text1 rounded transition ease-in-out duration:500 hover:bg-transparent hover:text-text1 hover:scale-110 hover:-translate-y-1"
+            className="flex text-2xl font-normal bg-pri_btn1 px-6 py-2 border border-text1 rounded transition ease-in-out duration:500 hover:bg-transparent hover:text-text1 hover:-translate-y-1"
             id="main_btn"
           >
             Try Now!
           </button>
         </div>
-        <div className="flex h-full w-3/5 bg-accent1" id="right">
-          <div className="flex py-48 px-32">
+        <div className="flex h-screen w-3/5 justify-center items-center bg-bg1 " id="right">
+          <div className="flex w-[750px] h-[750px] grow-0 shrink-0 justify-center items-center bg-accent1 rounded-full">
             <div
-              className='flex h-[520px] w-[520px] bg-[url("/cart.png")] bg-cover bg-center'
-              id="img"
-            ></div>
-            <div
-              className='flex h-[320px] w-[320px] bg-[url("/bag.png")] bg-cover bg-center -mx-32 my-48'
-              id="img2"
-            ></div>
+              className='flex h-[500px] w-[500px] justify-end items-end bg-[url("/cart.png")] bg-cover bg-center'
+              id="img">
+              <div className='flex h-[250px] w-[250px] justify-end bg-[url("/bag.png")] bg-cover bg-center my-5' id="img2"></div>
+            </div>
+            
           </div>
         </div>
       </div>
 
-      <div className="flex-col h-screen w-full bg-bg1" id="prompt">
-        <div className="flex h-1/6 w-full bg-accent1"></div>
-        <div className="flex-col h-5/6 w-full py-20 px-96 space-y-4">
-          <p className="flex w-full text-text1 text-2xl font-medium justify-center">
-            Enter your recipe:
-          </p>
-          <textarea
-            onChange={textAreaHandler}
-            onKeyDown={handleKeyDown}
-            id="prompt"
-            className="text-text1 w-full h-96 text-lg p-4"
-            placeholder="Enter your recipe"
-          ></textarea>
-
-          <div className="mb-4">
-            <label
-              htmlFor="badList"
-              className="block mb-2 font-medium text-gray-700"
-            >
-              Enter ingredients you don't want to include (separated by commas):
-            </label>
+      <div className="flex-col h-full w-full bg-bg1" id="prompt">
+        {/* <div className="flex h-1/6 w-full bg-accent1"></div> */}
+        <div className="flex h-full w-full py-20 px-48 ">
+          <div className="flex-col h-full w-full px-48 py-24 space-y-4 bg-accent1 rounded-lg">
+            <p className="flex w-full text-white text-2xl font-medium justify-center">
+              Enter your recipe:
+            </p>
             <textarea
-              id="badList"
-              value={badList.join(", ")}
-              rows={3}
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
-              onChange={handleBadListChange}
-            />
-          </div>
-          <div className="flex w-full justify-center">
-            <button
-              id="bad_list_btn"
-              type="submit"
-              onClick={() => badListHandler()}
-              className="bg-pri_btn1 px-16 py-4 rounded border border-text1 text-xl font-medium transition ease-in-out duration:500 hover:bg-transparent hover:text-text1 hover:scale-110 hover:-translate-y-1"
-            >
-              Set default filtering
-            </button>
-          </div>
+              onChange={textAreaHandler}
+              onKeyDown={handleKeyDown}
+              id="prompt"
+              className="text-text1 w-full h-96 text-lg p-4"
+              placeholder="Enter your recipe"
+            ></textarea>
 
-          <form onSubmit={handleSubmit} className="max-w-xs mx-auto">
             <div className="mb-4">
               <label
-                htmlFor="number"
-                className="block mb-2 font-medium text-gray-700"
+                htmlFor="badList"
+                className="block text-white mb-2 font-medium text-gray-700"
               >
-                Enter a number between 0 and 30:
+                Enter ingredients you don't want to include (separated by commas):
               </label>
-              <input
-                type="text"
-                id="number"
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
-                value={top}
-                onChange={handleChange}
+              <textarea
+                id="badList"
+                value={badList.join(", ")}
+                rows={3}
+                className="w-full text-text1 px-3 h-32 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+                onChange={handleBadListChange}
               />
             </div>
-          </form>
+            <div className="flex w-full justify-center">
+              <button
+                id="bad_list_btn"
+                type="submit"
+                onClick={() => badListHandler()}
+                className="bg-sec_btn1 text-text1 px-16 py-4 rounded border border-text1 text-xl font-medium transition ease-in-out duration:500 hover:scale-110"
+              >
+                Set default filtering
+              </button>
+            </div>
 
-          <div className="flex w-full justify-center">
-            <button
-              id="generate_btn"
-              type="submit"
-              onClick={() => generateAPIHandler("generate_btn")}
-              className="bg-pri_btn1 px-16 py-4 rounded border border-text1 text-xl font-medium transition ease-in-out duration:500 hover:bg-transparent hover:text-text1 hover:scale-110 hover:-translate-y-1"
-            >
-              {isLoading ? "Loading..." : "Find!"}
-            </button>
+            <form onSubmit={handleSubmit} className="max-w-xs mx-auto">
+              <div className="mb-4">
+                <label
+                  htmlFor="number"
+                  className="block mb-2 text-white font-medium text-gray-700"
+                >
+                  Enter a number between 0 and 30:
+                </label>
+                <input
+                  type="text"
+                  id="number"
+                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300 text-text1"
+                  value={top}
+                  onChange={handleChange}
+                />
+              </div>
+            </form>
+
+            <div className="flex w-full justify-center">
+              <button
+                id="generate_btn"
+                type="submit"
+                onClick={() => generateAPIHandler("generate_btn")}
+                className="bg-sec_btn1 text-text1 px-16 py-4 rounded border border-text1 text-xl font-medium transition ease-in-out duration:500 hover:scale-110"
+              >
+                {isLoading ? "Loading..." : "Find!"}
+              </button>
+            </div>
           </div>
         </div>
+        
       </div>
 
-      <div className="flex h-fit w-full bg-green-100 px-32 py-32">
-        <div className="flex-col w-full px-32 space-y-24">
+      <div className="flex h-fit w-full bg-green-200 px-32 py-16">
+        <div className="flex-col w-full px-32 space-y-24 text-text1">
           <div className="container mx-auto">
             <h1 className="text-2xl font-bold mb-4 text-center">All Results</h1>
             {Object.keys(allRes).length > 0 ? (
