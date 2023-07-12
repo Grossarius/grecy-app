@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { Inter } from "next/font/google";
-import { SetStateAction, useEffect, useState } from "react";
+import { SetStateAction, useEffect, useRef, useState } from "react";
 import path from "path";
 import { promises as fs } from "fs";
 import { stringify } from "querystring";
@@ -29,8 +29,8 @@ interface AllNone {
 function AllResComponent({ allRes }: { allRes: AllRes }) {
   return (
     <div className="flex-col">
-      <h1 className="text-5xl font-medium text-white">All Results</h1>
-      <div className="flex-col space-y-12 py-12">
+      <h1 className="text-5xl font-medium text-white mb-8">All Results</h1>
+      <div className="flex-col space-y-2">
         {Object.keys(allRes).map((key) => (
           <div key={key} className="capitalize">
             <Link
@@ -67,8 +67,8 @@ function BuyList({ id, buyList }: { id: string; buyList: Product[] }) {
             style={{
               minWidth: "200px",
               maxWidth: "200px",
-              minHeight: "300px",
-              maxHeight: "300px",
+              minHeight: "270px",
+              maxHeight: "270px",
             }} // Adjust the width and height as needed
           >
             <div className="flex flex-col justify-between h-full overflow-auto">
@@ -76,7 +76,7 @@ function BuyList({ id, buyList }: { id: string; buyList: Product[] }) {
                 <img
                   src={item.image}
                   alt={item.product_name}
-                  className="w-24 h-24 object-cover rounded-full"
+                  className="w-20 h-20 object-cover rounded-full"
                 />
                 <p className="text-center font-semibold">{item.product_name}</p>
               </div>
@@ -163,16 +163,19 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoading2, setIsLoading2] = useState(false);
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollRef2 = useRef<HTMLDivElement>(null);
+
   const textAreaHandler = (event: {
     target: { value: SetStateAction<String | undefined> };
   }) => {
     setValue(event.target.value);
   };
 
-  function scrollToPrompt() {
-    if (!isBrowser()) return;
-    window.scrollTo({ top: 1000, behavior: "smooth" });
-  }
+  // function scrollToPrompt() {
+  //   if (!isBrowser()) return;
+  //   window.scrollTo({ top: 1000, behavior: "smooth" });
+  // }
 
   const handleKeyDown = (event: {
     key: string;
@@ -207,6 +210,13 @@ export default function Home() {
   function badListHandler() {
     setBadList(defaultBadList);
   }
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [buyList]);
+
   async function generateAPIHandler(buttonId: string) {
     let requestBody: {
       prompt?: string;
@@ -277,13 +287,16 @@ export default function Home() {
             Grocery
           </p>
           <p className="flex text-xl font-normal w-4/5 text-text1" id="desc">
-            ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum
-            lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem
-            ipsum lorem ipsum lorem{" "}
+            Discover healthier shopping at Woolworths. Find products free from
+            harmful ingredients easily. Shop confidently for your well-being.{" "}
           </p>
           <button
-            onClick={scrollToPrompt}
-            className="flex text-2xl font-normal bg-pri_btn1 px-6 py-2 border border-text1 rounded transition ease-in-out duration:500 hover:bg-transparent hover:text-text1 hover:-translate-y-1"
+            onClick={() => {
+              if (scrollRef2.current) {
+                scrollRef2.current.scrollIntoView({ behavior: "smooth" });
+              }
+            }}
+            className="flex text-2xl font-normal bg-pri_btn1 text-white px-6 py-2 border border-white rounded transition duration-500 ease-in-out hover:bg-transparent hover:text-text1 hover:-translate-y-1"
             id="main_btn"
           >
             Try Now!
@@ -307,18 +320,23 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="flex-col h-full w-full bg-bg1" id="prompt">
+      <div
+        className="flex-col h-screen w-full bg-bg1"
+        id="prompt"
+        ref={scrollRef2}
+      >
         {/* <div className="flex h-1/6 w-full bg-accent1"></div> */}
-        <div className="flex h-full w-full py-20 px-48 ">
-          <div className="flex-col h-full w-full px-72 py-24 space-y-4 bg-accent1 rounded-lg">
+        <div className="flex h-screen w-full">
+          <div className="flex-col h-screen w-full px-72 py-8 space-y-6 bg-accent1">
             <p className="flex w-full text-white text-2xl font-medium justify-center">
-              Enter your recipe:
+              Enter your recipe
             </p>
             <textarea
               onChange={textAreaHandler}
               onKeyDown={handleKeyDown}
               id="prompt"
-              className="text-text1 w-full h-96 text-lg p-4"
+              rows={10}
+              className="text-text1 w-full text-lg p-4"
               placeholder="Enter your recipe"
             ></textarea>
 
@@ -328,7 +346,7 @@ export default function Home() {
                 className="flex lock text-white mb-2 font-medium text-gray-700 justify-center"
               >
                 Enter ingredients you don't want to include (separated by
-                commas):
+                commas)
               </label>
               <textarea
                 id="badList"
@@ -353,9 +371,9 @@ export default function Home() {
               <div className="mb-4">
                 <label
                   htmlFor="number"
-                  className="block mb-2 text-white font-medium text-gray-700"
+                  className="block mb-2 text-white font-medium text-gray-700 text-center"
                 >
-                  Enter a number between 0 and 30:
+                  Enter number of products per ingredient
                 </label>
                 <input
                   type="text"
@@ -381,58 +399,60 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="flex h-fit w-full bg-bg1 py-24">
-        <div className="flex-col w-full px-48 space-y-48 text-text1">
-          <div className="flex-col">
-            {Object.keys(allRes).length > 0 && (
-              <div className="bg-accent1 p-24 rounded-lg">
-                <AllResComponent allRes={allRes} />
-              </div>
-            )}
-          </div>
+      {buyList.length > 0 && (
+        <div className="flex h-fit w-full bg-bg1 py-16" ref={scrollRef}>
+          <div className="flex-col w-full px-20 space-y-24 text-text1">
+            <div className="flex-col">
+              {Object.keys(allRes).length > 0 && (
+                <div className="bg-accent1 p-16 rounded-lg">
+                  <AllResComponent allRes={allRes} />
+                </div>
+              )}
+            </div>
 
-          <div className="flex-col">
-            {buyList.length > 0 && (
-              <div
-                className="flex-col bg-accent1 px-24 py-24 space-y-12 rounded-lg"
-                id="wrapper"
-              >
-                <h1 className="text-5xl font-medium text-white">
-                  Grocery List
-                </h1>
-                <BuyList buyList={buyList} id="" />
-              </div>
-            )}
-          </div>
+            <div className="flex-col">
+              {buyList.length > 0 && (
+                <div
+                  className="flex-col bg-green-950 px-24 py-24 space-y-2 rounded-lg"
+                  id="wrapper"
+                >
+                  <h1 className="text-5xl font-medium text-white mb-8">
+                    Grocery List
+                  </h1>
+                  <BuyList buyList={buyList} id="" />
+                </div>
+              )}
+            </div>
 
-          <div className="flex-col">
-            {allItems.length > 0 && (
-              <div className="flex-col">
-                <h1 className="text-2xl font-bold mb-4 text-center">
-                  Items that weren't found
-                </h1>
-                <p>{allItems.join(", ")}</p>
-              </div>
-            )}
-          </div>
+            <div className="flex-col">
+              {allItems.length > 0 && (
+                <div className="flex-col">
+                  <h1 className="text-2xl font-bold mb-4 text-center">
+                    Items that weren't found
+                  </h1>
+                  <p>{allItems.join(", ")}</p>
+                </div>
+              )}
+            </div>
 
-          <div className="flex w-full justify-center">
-            {allItems.length > 0 ? (
-              <button
-                id="re_generate_btn"
-                onClick={() => generateAPIHandler("re_generate_btn")}
-                className="bg-pri_btn1 px-16 py-4 rounded border border-text1 text-xl font-medium transition ease-in-out duration:500 hover:bg-transparent hover:text-text1 hover:scale-110 hover:-translate-y-1"
-              >
-                {isLoading2
-                  ? "Loading..."
-                  : "Find missing items without filtering"}
-              </button>
-            ) : (
-              <></>
-            )}
+            <div className="flex w-full justify-center">
+              {allItems.length > 0 ? (
+                <button
+                  id="re_generate_btn"
+                  onClick={() => generateAPIHandler("re_generate_btn")}
+                  className="bg-pri_btn1 px-16 py-4 rounded border border-text1 text-xl font-medium transition ease-in-out duration-500 hover:bg-transparent hover:text-text1 hover:scale-110 hover:-translate-y-1"
+                >
+                  {isLoading2
+                    ? "Loading..."
+                    : "Find missing items without filtering"}
+                </button>
+              ) : (
+                <></>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
