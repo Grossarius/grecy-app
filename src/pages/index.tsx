@@ -5,6 +5,7 @@ import path from "path";
 import { promises as fs } from "fs";
 import { stringify } from "querystring";
 import { text } from "stream/consumers";
+import Link from "next/link";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -27,19 +28,24 @@ interface AllNone {
 
 function AllResComponent({ allRes }: { allRes: AllRes }) {
   return (
-    <div className="my-8">
-      {Object.keys(allRes).map((key) => (
-        <div key={key} className="mb-4 text-center">
-          <a
-            href={`https://www.woolworths.com.au/shop/search/products?searchTerm=${key}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <p className="text-2xl font-bold mb-2">{key}</p>
-          </a>
-          <BuyList buyList={allRes[key]} id={"AllRes"} />
-        </div>
-      ))}
+    <div className="flex-col">
+      <h1 className="text-5xl font-medium text-white">All Results</h1>
+      <div className="flex-col space-y-12 py-12">
+        {Object.keys(allRes).map((key) => (
+          <div key={key} className="capitalize">
+            <Link
+              href={`https://www.woolworths.com.au/shop/search/products?searchTerm=${key}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <p className="text-3xl font-normal text-white transition ease-in-out duration-500  hover:font-medium mb-2">
+                {key}
+              </p>
+            </Link>
+            <BuyList buyList={allRes[key]} id={"AllRes"} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -52,8 +58,8 @@ function BuyList({ id, buyList }: { id: string; buyList: Product[] }) {
   }
 
   return (
-    <div>
-      <div className="flex overflow-x-auto space-x-4">
+    <div className="flex-col space-y-6">
+      <div className="flex overflow-x-auto space-x-4 p-4">
         {buyList.map((item, index) => (
           <div
             key={index}
@@ -90,8 +96,10 @@ function BuyList({ id, buyList }: { id: string; buyList: Product[] }) {
 
       {/* Only show price if it's the grocery list */}
       {totalPrice > 0 && (
-        <div className="mt-4">
-          <p className="text-lg font-semibold">Total Price: {totalPrice}</p>
+        <div className="">
+          <p className="text-2xl font-bold text-white">
+            Total Price: {totalPrice}
+          </p>
         </div>
       )}
     </div>
@@ -285,13 +293,13 @@ export default function Home() {
           className="flex h-screen w-3/5 justify-center items-center bg-bg1 "
           id="right"
         >
-          <div className="flex w-[750px] h-[750px] grow-0 shrink-0 justify-center items-center bg-accent1 rounded-full">
+          <div className="flex w-[750px] h-[750px] sm:scale-75 md:scale-75 lg:scale-100 shrink-0 grow-0 justify-center items-center bg-accent1 rounded-full">
             <div
-              className='flex h-[500px] w-[500px] justify-end items-end bg-[url("/cart.png")] bg-cover bg-center'
+              className='flex h-2/3 w-2/3 justify-end items-end bg-[url("/cart.png")] bg-cover bg-center'
               id="img"
             >
               <div
-                className='flex h-[250px] w-[250px] justify-end bg-[url("/bag.png")] bg-cover bg-center my-5'
+                className='flex h-1/2 w-1/2 justify-end bg-[url("/bag.png")] bg-cover bg-center my-5'
                 id="img2"
               ></div>
             </div>
@@ -302,7 +310,7 @@ export default function Home() {
       <div className="flex-col h-full w-full bg-bg1" id="prompt">
         {/* <div className="flex h-1/6 w-full bg-accent1"></div> */}
         <div className="flex h-full w-full py-20 px-48 ">
-          <div className="flex-col h-full w-full px-48 py-24 space-y-4 bg-accent1 rounded-lg">
+          <div className="flex-col h-full w-full px-72 py-24 space-y-4 bg-accent1 rounded-lg">
             <p className="flex w-full text-white text-2xl font-medium justify-center">
               Enter your recipe:
             </p>
@@ -317,7 +325,7 @@ export default function Home() {
             <div className="mb-4">
               <label
                 htmlFor="badList"
-                className="block text-white mb-2 font-medium text-gray-700"
+                className="flex lock text-white mb-2 font-medium text-gray-700 justify-center"
               >
                 Enter ingredients you don't want to include (separated by
                 commas):
@@ -373,36 +381,38 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="flex h-fit w-full bg-green-200 px-32 py-16">
-        <div className="flex-col w-full px-32 space-y-24 text-text1">
-          <div className="container mx-auto">
-            <h1 className="text-2xl font-bold mb-4 text-center">All Results</h1>
-            {Object.keys(allRes).length > 0 ? (
-              <AllResComponent allRes={allRes} />
-            ) : (
-              <p>No results to display.</p>
+      <div className="flex h-fit w-full bg-bg1 py-24">
+        <div className="flex-col w-full px-48 space-y-48 text-text1">
+          <div className="flex-col">
+            {Object.keys(allRes).length > 0 && (
+              <div className="bg-accent1 p-24 rounded-lg">
+                <AllResComponent allRes={allRes} />
+              </div>
             )}
           </div>
 
-          <div className="container mx-auto">
-            <h1 className="text-2xl font-bold mb-4 text-center">
-              Grocery List
-            </h1>
-            {buyList.length > 0 ? (
-              <BuyList buyList={buyList} id="" />
-            ) : (
-              <p>No items to display.</p>
+          <div className="flex-col">
+            {buyList.length > 0 && (
+              <div
+                className="flex-col bg-accent1 px-24 py-24 space-y-12 rounded-lg"
+                id="wrapper"
+              >
+                <h1 className="text-5xl font-medium text-white">
+                  Grocery List
+                </h1>
+                <BuyList buyList={buyList} id="" />
+              </div>
             )}
           </div>
 
-          <div className="container mx-auto">
-            <h1 className="text-2xl font-bold mb-4 text-center">
-              Items that weren't found
-            </h1>
-            {allItems.length > 0 ? (
-              <p>{allItems.join(", ")}</p>
-            ) : (
-              <p>No items to display.</p>
+          <div className="flex-col">
+            {allItems.length > 0 && (
+              <div className="flex-col">
+                <h1 className="text-2xl font-bold mb-4 text-center">
+                  Items that weren't found
+                </h1>
+                <p>{allItems.join(", ")}</p>
+              </div>
             )}
           </div>
 

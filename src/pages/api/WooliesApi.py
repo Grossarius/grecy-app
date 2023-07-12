@@ -187,7 +187,8 @@ def find_product(product: str, df, k: str, filter_ingredient = True, bad_list: L
     if k != 'fruit-veg' and k != 'poultry-meat-seafood':
         selected_rows = selected_rows[~selected_rows['Ingredients'].isna()]    
     
-    # Select only rows that are within a department or similar criteria
+    # Select only rows that are within a department or similar criteria #Filter honey food product  - nick
+    """"""
     if product == "honey":
         selected_rows = selected_rows[selected_rows["Aisle"].str.lower() == "honey"]
     if product == "egg":
@@ -200,6 +201,8 @@ def find_product(product: str, df, k: str, filter_ingredient = True, bad_list: L
         selected_rows = selected_rows[selected_rows["Sap Sub Category Name"].str.lower() == "pasta"]
     if any(word in product for word in ["parmesan", "cheddar", "mozzarella", "cheese"]):
         selected_rows = selected_rows[selected_rows["Department"].str.lower() == "dairy"]
+    """"""
+
 
     print("Len of selected rows (before filtering): ", len(selected_rows))
 
