@@ -15,6 +15,7 @@ from flask_cors import CORS
 
 # Setup
 load_dotenv()
+# GPT_MODEL = "gpt-4-0613"
 GPT_MODEL = "gpt-3.5-turbo"
 openai.api_key = os.getenv("OPENAI_API_KEY")
 p = inflect.engine()

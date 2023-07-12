@@ -239,7 +239,7 @@ export default function Home() {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data)
+        console.log(data);
         console.log(data.filter);
         if (data.filter) {
           setAllRes(data.all_res);
@@ -281,14 +281,20 @@ export default function Home() {
             Try Now!
           </button>
         </div>
-        <div className="flex h-screen w-3/5 justify-center items-center bg-bg1 " id="right">
+        <div
+          className="flex h-screen w-3/5 justify-center items-center bg-bg1 "
+          id="right"
+        >
           <div className="flex w-[750px] h-[750px] grow-0 shrink-0 justify-center items-center bg-accent1 rounded-full">
             <div
               className='flex h-[500px] w-[500px] justify-end items-end bg-[url("/cart.png")] bg-cover bg-center'
-              id="img">
-              <div className='flex h-[250px] w-[250px] justify-end bg-[url("/bag.png")] bg-cover bg-center my-5' id="img2"></div>
+              id="img"
+            >
+              <div
+                className='flex h-[250px] w-[250px] justify-end bg-[url("/bag.png")] bg-cover bg-center my-5'
+                id="img2"
+              ></div>
             </div>
-            
           </div>
         </div>
       </div>
@@ -313,7 +319,8 @@ export default function Home() {
                 htmlFor="badList"
                 className="block text-white mb-2 font-medium text-gray-700"
               >
-                Enter ingredients you don't want to include (separated by commas):
+                Enter ingredients you don't want to include (separated by
+                commas):
               </label>
               <textarea
                 id="badList"
@@ -364,7 +371,6 @@ export default function Home() {
             </div>
           </div>
         </div>
-        
       </div>
 
       <div className="flex h-fit w-full bg-green-200 px-32 py-16">
