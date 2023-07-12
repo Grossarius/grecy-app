@@ -83,9 +83,9 @@ function BuyList({ id, buyList }: { id: string; buyList: Product[] }) {
                 <p className="text-gray-600">
                   Cup Price: {item.cup_price}/{item.cup}
                 </p>
-                <a href={item.stockcode} className="text-blue-500 underline">
+                <Link href={item.stockcode} className="text-blue-500 underline">
                   Link to the product
-                </a>
+                </Link>
               </div>
             </div>
           </div>
