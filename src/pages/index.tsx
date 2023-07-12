@@ -98,7 +98,7 @@ function BuyList({ id, buyList }: { id: string; buyList: Product[] }) {
       {totalPrice > 0 && (
         <div className="">
           <p className="text-2xl font-bold text-white">
-            Total Price: {totalPrice}
+            Total Price: ${totalPrice.toFixed(2)}
           </p>
         </div>
       )}
