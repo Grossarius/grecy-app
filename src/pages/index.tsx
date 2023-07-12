@@ -372,7 +372,7 @@ export default function Home() {
       </div>
 
       <div className="flex h-fit w-full bg-bg1 py-24">
-        <div className="flex-col w-full px-48 space-y-24 text-text1">
+        <div className="flex-col w-full px-48 space-y-48 text-text1">
           
           <div className="flex-col">
             {Object.keys(allRes).length > 0 && 
