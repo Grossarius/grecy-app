@@ -71,7 +71,7 @@ function BuyList({ id, buyList }: { id: string; buyList: Product[] }) {
           >
             <div className="flex flex-col justify-between h-full overflow-auto">
               <div className="flex flex-col items-center">
-                <Image
+                <img
                   src={item.image}
                   alt={item.product_name}
                   className="w-24 h-24 object-cover rounded-full"
