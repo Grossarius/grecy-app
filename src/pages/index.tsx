@@ -71,7 +71,7 @@ function BuyList({ id, buyList }: { id: string; buyList: Product[] }) {
           >
             <div className="flex flex-col justify-between h-full overflow-auto">
               <div className="flex flex-col items-center">
-                <img
+                <Image
                   src={item.image}
                   alt={item.product_name}
                   className="w-24 h-24 object-cover rounded-full"
@@ -317,7 +317,7 @@ export default function Home() {
                 htmlFor="badList"
                 className="flex lock text-white mb-2 font-medium text-gray-700 justify-center"
               >
-                Enter ingredients you don't want to include (separated by commas):
+                Enter ingredients you do not want to include (separated by commas):
               </label>
               <textarea
                 id="badList"
@@ -395,7 +395,7 @@ export default function Home() {
             
             {allItems.length > 0 && 
               <div className="flex-col">
-                <h1 className="text-2xl font-bold mb-4 text-center">Items that weren't found</h1>
+                <h1 className="text-2xl font-bold mb-4 text-center">Items that were not found</h1>
                 <p>{allItems.join(", ")}</p>
               </div>
             }
