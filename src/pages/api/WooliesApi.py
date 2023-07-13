@@ -278,7 +278,7 @@ def find_product(product: str, df, k: str, filter_ingredient = True, bad_list: L
 def get_all_product(data: str, top = 5, bad_list: List[str] = []) -> Tuple[Dict[str, List[Dict[str, any]]], List[Dict[str, any]], Dict[str, List[str]]]:
     base_dir = os.path.dirname(os.path.abspath(__file__))
     data_dir = os.path.join(base_dir, '..', 'data')
-    
+    print(data_dir)
     all_none = {}
     all_res = defaultdict(list)
     buy_list = []
