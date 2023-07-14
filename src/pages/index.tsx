@@ -97,7 +97,7 @@ function BuyList({ id, buyList }: { id: string; buyList: Product[] }) {
       {/* Only show price if it's the grocery list */}
       {totalPrice > 0 && (
         <div className="">
-          <p className="text-2xl font-bold text-white">
+          <p className="text-2xl font-bold text-accent1">
             Total Price: ${totalPrice.toFixed(2)}
           </p>
         </div>
@@ -164,7 +164,7 @@ export default function Home() {
   const [isLoading2, setIsLoading2] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
-  const scrollRef2 = useRef<HTMLDivElement>(null);
+  const scrollRef1 = useRef<HTMLDivElement>(null);
 
   const textAreaHandler = (event: {
     target: { value: SetStateAction<String | undefined> };
@@ -283,17 +283,17 @@ export default function Home() {
     <div className="Parent">
       <div className="flex h-screen w-full bg-bg1" id="main_screen">
         <div className="flex-col h-full w-2/5 space-y-8 pl-48 py-64" id="left">
-          <p className="flex text-8xl font-bold text-accent1" id="name">
-            Grocery
+          <p className="flex text-9xl font-bold text-accent1" id="name">
+            Grecy
           </p>
-          <p className="flex text-xl font-normal w-4/5 text-text1" id="desc">
+          <p className="flex text-2xl font-normal w-5/5 text-text1" id="desc">
             Discover healthier shopping at Woolworths. Find products free from
             harmful ingredients easily. Shop confidently for your well-being.{" "}
           </p>
           <button
             onClick={() => {
-              if (scrollRef2.current) {
-                scrollRef2.current.scrollIntoView({ behavior: "smooth" });
+              if (scrollRef1.current) {
+                scrollRef1.current.scrollIntoView({ behavior: "smooth" });
               }
             }}
             className="flex text-2xl font-normal bg-pri_btn1 text-white px-6 py-2 border border-white rounded transition duration-500 ease-in-out hover:bg-transparent hover:text-text1 hover:-translate-y-1"
@@ -323,7 +323,7 @@ export default function Home() {
       <div
         className="flex-col h-screen w-full bg-bg1"
         id="prompt"
-        ref={scrollRef2}
+        ref={scrollRef1}
       >
         {/* <div className="flex h-1/6 w-full bg-accent1"></div> */}
         <div className="flex h-screen w-full">
@@ -413,10 +413,10 @@ export default function Home() {
             <div className="flex-col">
               {buyList.length > 0 && (
                 <div
-                  className="flex-col bg-green-950 px-24 py-24 space-y-2 rounded-lg"
+                  className="flex-col px-24 py-24 space-y-2 rounded-lg"
                   id="wrapper"
                 >
-                  <h1 className="text-5xl font-medium text-white mb-8">
+                  <h1 className="text-5xl font-medium text-accent1 mb-8">
                     Grocery List
                   </h1>
                   <BuyList buyList={buyList} id="" />
