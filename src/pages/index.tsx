@@ -345,7 +345,7 @@ export default function Home() {
                 htmlFor="badList"
                 className="flex lock text-white mb-2 font-medium text-gray-700 justify-center"
               >
-                Enter ingredients you don't want to include (separated by
+                Enter ingredients you do not want to include (separated by
                 commas)
               </label>
               <textarea
@@ -428,7 +428,7 @@ export default function Home() {
               {allItems.length > 0 && (
                 <div className="flex-col">
                   <h1 className="text-2xl font-bold mb-4 text-center">
-                    Items that weren't found
+                    Items that were not found
                   </h1>
                   <p>{allItems.join(", ")}</p>
                 </div>
