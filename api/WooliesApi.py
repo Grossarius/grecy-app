@@ -15,7 +15,6 @@ from flask_cors import CORS
 
 # Setup
 load_dotenv()
-# GPT_MODEL = "gpt-4-0613"
 GPT_MODEL = "gpt-3.5-turbo"
 openai.api_key = os.getenv("OPENAI_API_KEY")
 p = inflect.engine()
@@ -136,8 +135,6 @@ def find_product(product: str, df, k: str, filter_ingredient = True, bad_list: L
         product = "tomato sauce"
     if "ground" in product:
         product = product.replace("ground", "mince")
-    if "minced" in product:
-        product = product.replace("minced", "mince")
     if ("raising" in product and "flour" in product) or "self-raising" in product:
         product = "raising flour"
     if "cornflour" in product or "cornstarch" in product:
@@ -195,16 +192,12 @@ def find_product(product: str, df, k: str, filter_ingredient = True, bad_list: L
         selected_rows = selected_rows[selected_rows["Aisle"].str.lower() == "honey"]
     if product == "egg":
         selected_rows = selected_rows[selected_rows["Aisle"].str.lower() == "eggs"]
+    if product == "ginger":
+        selected_rows = selected_rows[selected_rows["Department"].str.lower() != "drink"]
     if product == "butter":
         selected_rows = selected_rows[selected_rows["Sap Category Name"].str.lower() == "dairy - butter & margarine"]
     if "spaghetti" in product:
         selected_rows = selected_rows[selected_rows["Sap Sub Category Name"].str.lower() == "pasta"]
-    if product == "ginger":
-        selected_rows = selected_rows[selected_rows["Department"].str.lower() != "drink"]
-    if "basil" in product:
-        selected_rows = selected_rows[selected_rows["Sap Category Name"].str.lower() != "CANNED VEGETABLES"]
-    if "oregano" in product:
-        selected_rows = selected_rows[selected_rows["Sap Category Name"].str.lower() != "CANNED VEGETABLES"]
     if any(word in product for word in ["parmesan", "cheddar", "mozzarella", "cheese"]):
         selected_rows = selected_rows[selected_rows["Department"].str.lower() == "dairy"]
     """"""
@@ -285,7 +278,7 @@ def find_product(product: str, df, k: str, filter_ingredient = True, bad_list: L
 def get_all_product(data: str, top = 5, bad_list: List[str] = []) -> Tuple[Dict[str, List[Dict[str, any]]], List[Dict[str, any]], Dict[str, List[str]]]:
     base_dir = os.path.dirname(os.path.abspath(__file__))
     data_dir = os.path.join(base_dir, '..', 'data')
-    print(data_dir)
+    
     all_none = {}
     all_res = defaultdict(list)
     buy_list = []
