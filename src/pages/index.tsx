@@ -162,6 +162,7 @@ export default function Home() {
   // One for each generate button (the second one only appears if allNone is not empty)
   const [isLoading, setIsLoading] = useState(false);
   const [isLoading2, setIsLoading2] = useState(false);
+  const [isProductFound, setIsProductFound] = useState(true);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const scrollRef1 = useRef<HTMLDivElement>(null);
@@ -235,6 +236,8 @@ export default function Home() {
       };
     } else {
       setIsLoading(true);
+      setIsProductFound(true);
+
       requestBody = {
         prompt: value as string,
         filter: true,
@@ -259,6 +262,11 @@ export default function Home() {
       .then((data) => {
         console.log(data);
         console.log(data.filter);
+
+        if (Object.keys(data.all_res).length === 0) {
+          console.log("empty");
+          setIsProductFound(false);
+        }
         if (data.filter) {
           setAllRes(data.all_res);
           setBuyList(data.buy_list);
@@ -420,7 +428,11 @@ export default function Home() {
                 onClick={() => generateAPIHandler("generate_btn")}
                 className="bg-sec_btn1 text-text1 px-16 py-4 rounded border border-text1 text-xl font-medium transition ease-in-out duration:500 hover:scale-110"
               >
-                {isLoading ? "Loading..." : "Find!"}
+                {!isProductFound
+                  ? "Product Not Found"
+                  : isLoading
+                  ? "Loading..."
+                  : "Find!"}
               </button>
             </div>
           </div>
