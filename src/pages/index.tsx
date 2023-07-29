@@ -247,7 +247,8 @@ export default function Home() {
     }
 
     console.log(requestBody);
-
+    // http://127.0.0.1:5000/
+    // https://grecy-api.vercel.app/get_product
     fetch("https://grecy-api.vercel.app/get_product", {
       method: "POST",
       headers: {
@@ -358,9 +359,10 @@ export default function Home() {
         ref={scrollRef1}
       >
         <div className="flex h-screen w-full">
-          <div className="flex-col h-screen w-full py-8 px-16 space-y-6 bg-accent1">
-            <p className="flex w-half text-white text-2xl font-medium justify-center">
-              Enter your recipe
+          <div className="flex-col h-screen w-full py-8 px-10 space-y-6 bg-accent1">
+            <p className="flex-wrap w-half text-white text-3xl font-medium text-center justify-center">
+              Enter your recipe <br></br>
+              <span className="text-sm"> (separated by commas)</span>
             </p>
 
             <div className="flex w-full justify-center">
@@ -369,7 +371,7 @@ export default function Home() {
                 onKeyDown={handleKeyDown}
                 id="prompt"
                 rows={10}
-                className="border rounded-md text-text1 w-full sm:w-3/4 text-lg p-4 max-h-52 sm:max-h-max"
+                className="border rounded-md text-text1 w-full sm:w-3/4 text-lg p-4 max-h-32 sm:max-h-max"
                 placeholder="Enter your recipe"
               ></textarea>
             </div>
@@ -377,10 +379,9 @@ export default function Home() {
             <div className="mb-4">
               <label
                 htmlFor="badList"
-                className="flex lock text-white mb-2 font-medium text-gray-700 justify-center "
+                className="flex lock text-white mb-2 font-medium text-gray-700 text-center justify-center "
               >
-                Enter ingredients you do not want to include (separated by
-                commas)
+                Ingredients you do not want to include
               </label>
             </div>
             <div className="flex w-full justify-center">
@@ -388,7 +389,7 @@ export default function Home() {
                 id="badList"
                 value={badList.join(", ")}
                 rows={3}
-                className="w-full sm:w-3/4 text-text1 px-3 h-32 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+                className="w-full sm:w-3/4 text-text1 px-3 h-32 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300 max-h-20 sm:max-h-max"
                 onChange={handleBadListChange}
               />
             </div>
@@ -397,7 +398,7 @@ export default function Home() {
                 id="bad_list_btn"
                 type="submit"
                 onClick={() => badListHandler()}
-                className="bg-sec_btn1 text-text1 px-16 py-4 rounded border border-text1 text-xl font-medium transition ease-in-out duration:500 hover:scale-110"
+                className="bg-sec_btn1 text-text1 px-8 py-2 rounded border border-text1 text-xl font-medium transition ease-in-out duration:500 hover:scale-110"
               >
                 Set default filtering
               </button>
@@ -426,7 +427,7 @@ export default function Home() {
                 id="generate_btn"
                 type="submit"
                 onClick={() => generateAPIHandler("generate_btn")}
-                className="bg-sec_btn1 text-text1 px-16 py-4 rounded border border-text1 text-xl font-medium transition ease-in-out duration:500 hover:scale-110"
+                className="bg-sec_btn1 text-text1 px-8 py-2 rounded border border-text1 text-xl font-medium transition ease-in-out duration:500 hover:scale-110"
               >
                 {!isProductFound
                   ? "Product Not Found"
