@@ -281,8 +281,8 @@ export default function Home() {
 
   return (
     <div className="Parent">
-      <div className="flex h-screen w-full bg-bg1" id="main_screen">
-        <div className="flex-col h-full w-2/5 space-y-8 pl-48 py-64" id="left">
+      {/* <div className="flex min-h-screen w-full bg-bg1" id="main_screen">
+        <div className="flex-col h-screen w-2/5 space-y-8 pl-48 py-64" id="left">
           <p className="flex text-9xl font-bold text-accent1" id="name">
             Grecy
           </p>
@@ -318,41 +318,69 @@ export default function Home() {
             </div>
           </div>
         </div>
+      </div> */}
+
+      <div className="min-h-screen bg-bg1 flex flex-col justify-center items-center sm:pl-10">
+        <p className="text-6xl sm:text-8xl font-bold text-accent1" id="name">
+          Grecy
+        </p>
+        <p
+          className="text-xl sm:text-3xl text-center w-full text-text1 my-8 sm:px-16"
+          id="desc"
+        >
+          Discover healthier shopping at Woolworths. Find products free from
+          harmful ingredients easily. Shop confidently for your well-being.
+        </p>
+        <button
+          onClick={() => {
+            if (scrollRef1.current) {
+              scrollRef1.current.scrollIntoView({ behavior: "smooth" });
+            }
+          }}
+          className="text-xl sm:text-2xl bg-pri_btn1 text-white px-6 py-2 border border-white rounded transition duration-500 ease-in-out hover:bg-transparent hover:text-text1 hover:-translate-y-1"
+          id="main_btn"
+        >
+          Try Now!
+        </button>
       </div>
 
       <div
-        className="flex-col h-screen w-full bg-bg1"
+        className="flex flex-col h-screen items-center justify-center bg-bg1"
         id="prompt"
         ref={scrollRef1}
       >
-        {/* <div className="flex h-1/6 w-full bg-accent1"></div> */}
         <div className="flex h-screen w-full">
-          <div className="flex-col h-screen w-full px-72 py-8 space-y-6 bg-accent1">
-            <p className="flex w-full text-white text-2xl font-medium justify-center">
+          <div className="flex-col h-screen w-full py-8 px-16 space-y-6 bg-accent1">
+            <p className="flex w-half text-white text-2xl font-medium justify-center">
               Enter your recipe
             </p>
-            <textarea
-              onChange={textAreaHandler}
-              onKeyDown={handleKeyDown}
-              id="prompt"
-              rows={10}
-              className="text-text1 w-full text-lg p-4"
-              placeholder="Enter your recipe"
-            ></textarea>
+
+            <div className="flex w-full justify-center">
+              <textarea
+                onChange={textAreaHandler}
+                onKeyDown={handleKeyDown}
+                id="prompt"
+                rows={10}
+                className="border rounded-md text-text1 w-full sm:w-3/4 text-lg p-4 max-h-52 sm:max-h-max"
+                placeholder="Enter your recipe"
+              ></textarea>
+            </div>
 
             <div className="mb-4">
               <label
                 htmlFor="badList"
-                className="flex lock text-white mb-2 font-medium text-gray-700 justify-center"
+                className="flex lock text-white mb-2 font-medium text-gray-700 justify-center "
               >
                 Enter ingredients you do not want to include (separated by
                 commas)
               </label>
+            </div>
+            <div className="flex w-full justify-center">
               <textarea
                 id="badList"
                 value={badList.join(", ")}
                 rows={3}
-                className="w-full text-text1 px-3 h-32 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+                className="w-full sm:w-3/4 text-text1 px-3 h-32 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
                 onChange={handleBadListChange}
               />
             </div>
@@ -401,28 +429,23 @@ export default function Home() {
 
       {buyList.length > 0 && (
         <div className="flex h-fit w-full bg-bg1 py-16" ref={scrollRef}>
-          <div className="flex-col w-full px-20 space-y-24 text-text1">
+          <div className="flex-col w-full sm:px-20 space-y-14 text-text1">
             <div className="flex-col">
               {Object.keys(allRes).length > 0 && (
-                <div className="bg-accent1 p-16 rounded-lg">
+                <div className="bg-accent1 py-16 px-5 sm:p-16 sm:rounded-lg">
                   <AllResComponent allRes={allRes} />
                 </div>
               )}
             </div>
 
-            <div className="flex-col">
-              {buyList.length > 0 && (
-                <div
-                  className="flex-col px-24 py-24 space-y-2 rounded-lg"
-                  id="wrapper"
-                >
-                  <h1 className="text-5xl font-medium text-accent1 mb-8">
-                    Grocery List
-                  </h1>
-                  <BuyList buyList={buyList} id="" />
-                </div>
-              )}
-            </div>
+            {buyList.length > 0 && (
+              <div className="flex-col" id="wrapper">
+                <h1 className="text-5xl font-medium text-accent1 mb-8">
+                  Grocery List
+                </h1>
+                <BuyList buyList={buyList} id="" />
+              </div>
+            )}
 
             <div className="flex-col">
               {allItems.length > 0 && (
