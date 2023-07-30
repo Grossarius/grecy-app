@@ -96,7 +96,7 @@ function BuyList({ id, buyList }: { id: string; buyList: Product[] }) {
 
       {/* Only show price if it's the grocery list */}
       {totalPrice > 0 && (
-        <div className="">
+        <div className="text-center">
           <p className="text-2xl font-bold text-accent1">
             Total Price: ${totalPrice.toFixed(2)}
           </p>
@@ -247,7 +247,7 @@ export default function Home() {
     }
 
     console.log(requestBody);
-    // http://127.0.0.1:5000/
+    // http://127.0.0.1:5000/get_product
     // https://grecy-api.vercel.app/get_product
     fetch("https://grecy-api.vercel.app/get_product", {
       method: "POST",
@@ -334,7 +334,7 @@ export default function Home() {
           Grecy
         </p>
         <p
-          className="text-xl sm:text-3xl text-center w-full text-text1 my-8 sm:px-16"
+          className="text-xl sm:text-3xl text-center w-full text-text1 my-8 px-4 sm:px-16"
           id="desc"
         >
           Discover healthier shopping at Woolworths. Find products free from
@@ -451,41 +451,43 @@ export default function Home() {
               )}
             </div>
 
-            {buyList.length > 0 && (
-              <div className="flex-col" id="wrapper">
-                <h1 className="text-5xl font-medium text-accent1 mb-8">
-                  Grocery List
-                </h1>
-                <BuyList buyList={buyList} id="" />
-              </div>
-            )}
-
-            <div className="flex-col">
-              {allItems.length > 0 && (
-                <div className="flex-col">
-                  <h1 className="text-2xl font-bold mb-4 text-center">
-                    Items that were not found
+            <div className="flex-col px-4">
+              {buyList.length > 0 && (
+                <div className="flex-col" id="wrapper">
+                  <h1 className="text-5xl font-medium text-accent1 mb-8">
+                    Grocery List
                   </h1>
-                  <p>{allItems.join(", ")}</p>
+                  <BuyList buyList={buyList} id="" />
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
 
-            <div className="flex w-full justify-center">
-              {allItems.length > 0 ? (
-                <button
-                  id="re_generate_btn"
-                  onClick={() => generateAPIHandler("re_generate_btn")}
-                  className="bg-pri_btn1 px-16 py-4 rounded border border-text1 text-xl font-medium transition ease-in-out duration-500 hover:bg-transparent hover:text-text1 hover:scale-110 hover:-translate-y-1"
-                >
-                  {isLoading2
-                    ? "Loading..."
-                    : "Find missing items without filtering"}
-                </button>
-              ) : (
-                <></>
-              )}
+      {allItems.length > 0 && (
+        <div className="bg-accent1 py-16 px-5 sm:p-16 ">
+          <div className="">
+            <div className="flex-col">
+              <h1 className="text-2xl font-medium text-white">
+                Items that were not found
+              </h1>
+              <p className="py-4 text-white">
+                {allItems.join(", ").charAt(0).toUpperCase() +
+                  allItems.join(", ").slice(1)}
+              </p>
             </div>
+          </div>
+          <div className="flex w-full justify-center">
+            <button
+              id="re_generate_btn"
+              onClick={() => generateAPIHandler("re_generate_btn")}
+              className="bg-sec_btn1 text-text1 px-8 py-2 rounded border border-text1 text-xl font-medium transition ease-in-out duration:500 hover:scale-110"
+            >
+              {isLoading2
+                ? "Loading..."
+                : "Find missing items without filtering"}
+            </button>
           </div>
         </div>
       )}
