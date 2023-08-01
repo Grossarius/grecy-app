@@ -6,7 +6,7 @@ import { promises as fs } from "fs";
 import { stringify } from "querystring";
 import { text } from "stream/consumers";
 import Link from "next/link";
-
+import ReactLoading from "react-loading";
 const inter = Inter({ subsets: ["latin"] });
 
 interface Product {
@@ -115,7 +115,7 @@ export default function Home() {
     "Natural flavour",
     "Aspartame",
     "BHT",
-    "Calcium disodium EDTA",
+    "Calcium `dis`odium EDTA",
     "Color",
     "Colour",
     "Carrageenan",
@@ -354,15 +354,19 @@ export default function Home() {
       </div>
 
       <div
-        className="flex flex-col h-screen items-center justify-center bg-bg1"
+        className="flex flex-col h-full items-center justify-center bg-bg1"
         id="prompt"
         ref={scrollRef1}
       >
-        <div className="flex h-screen w-full">
-          <div className="flex-col h-screen w-full py-8 px-10 space-y-6 bg-accent1">
+        <div className="flex h-full w-full">
+          <div className="flex-col h-full w-full py-8 px-10 space-y-6 bg-accent1">
             <p className="flex-wrap w-half text-white text-3xl font-medium text-center justify-center">
               Enter your recipe <br></br>
-              <span className="text-sm"> (separated by commas)</span>
+              <span className="text-sm leading-3">
+                (Example: 1 tsp (5ml) - Olive Oil, 600g (1.32lbs) - Chicken
+                Thigh, Boneless & Skinless, 1 1/2 tsp (4g) - Onion Powder, 1 1/2
+                tsp (4g) - Garlic Powder, 1 1/2 tsp (4g) - Smoked Paprika)
+              </span>
             </p>
 
             <div className="flex w-full justify-center">
@@ -371,6 +375,7 @@ export default function Home() {
                 onKeyDown={handleKeyDown}
                 id="prompt"
                 rows={10}
+                maxLength={1000}
                 className="border rounded-md text-text1 w-full sm:w-3/4 text-lg p-4 max-h-32 sm:max-h-max"
                 placeholder="Enter your recipe"
               ></textarea>
@@ -389,6 +394,7 @@ export default function Home() {
                 id="badList"
                 value={badList.join(", ")}
                 rows={3}
+                maxLength={1000}
                 className="w-full sm:w-3/4 text-text1 px-3 h-32 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300 max-h-20 sm:max-h-max"
                 onChange={handleBadListChange}
               />
@@ -424,16 +430,19 @@ export default function Home() {
 
             <div className="flex w-full justify-center">
               <button
+                disabled={isLoading}
                 id="generate_btn"
                 type="submit"
                 onClick={() => generateAPIHandler("generate_btn")}
                 className="bg-sec_btn1 text-text1 px-8 py-2 rounded border border-text1 text-xl font-medium transition ease-in-out duration:500 hover:scale-110"
               >
-                {!isProductFound
-                  ? "Product Not Found"
-                  : isLoading
-                  ? "Loading..."
-                  : "Find!"}
+                {!isProductFound ? (
+                  "Product Not Found"
+                ) : isLoading ? (
+                  <ReactLoading type="spin" color="" height={20} width={20} />
+                ) : (
+                  "Find!"
+                )}
               </button>
             </div>
           </div>
@@ -480,13 +489,12 @@ export default function Home() {
           </div>
           <div className="flex w-full justify-center">
             <button
+              disabled={isLoading2}
               id="re_generate_btn"
               onClick={() => generateAPIHandler("re_generate_btn")}
               className="bg-sec_btn1 text-text1 px-8 py-2 rounded border border-text1 text-xl font-medium transition ease-in-out duration:500 hover:scale-110"
             >
-              {isLoading2
-                ? "Loading..."
-                : "Find missing items without filtering"}
+              {isLoading2 ? "Loading..." : "Find missing items unfiltered"}
             </button>
           </div>
         </div>
